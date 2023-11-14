@@ -1,0 +1,12 @@
+version: "1.0.0"
+services:
+  server:
+    build:
+      context: ./minerva-backend/
+    ports:
+      - "8134:8134"
+  web:
+    build:
+      context: ./minerva-webapp/
+    ports:
+      - "3000:3000"

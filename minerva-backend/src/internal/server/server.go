@@ -15,8 +15,8 @@ func (server *Server) Init() {
 	RegisterRoutes(server.router)
 }
 
-func (server *Server) Run() {
-	if err := server.router.Run(); err != nil {
+func (server *Server) Run(address string) {
+	if err := server.router.Run(address); err != nil {
 		fmt.Printf("Runtime error: %e", err)
 	}
 }
