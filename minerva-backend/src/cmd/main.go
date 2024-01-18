@@ -1,22 +1,26 @@
 package main
 
 import (
-	"flag"
 	"fmt"
+	"log"
 
+	"github.com/Code-Mozart/minerva/minerva-backend/initializers"
 	"github.com/Code-Mozart/minerva/minerva-backend/internal/server"
 )
 
-func main() {
-	server := &server.Server{}
-	server.Init()
+const DEFAULT_PORT string = "8134"
 
-	port := flag.String("port", "8134", "Port to listen on (default is 8134 as in 'm1n3rv4')")
-	flag.Parse()
-	if port == nil {
-		panic("Port is nil")
+func main() {
+	env, err := initializers.LoadEnvironment()
+	if err != nil {
+		log.Fatal(err)
 	}
 
-	address := fmt.Sprintf(":%s", *port)
+	server, err := server.Initialize(env)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	address := fmt.Sprintf(":%s", env.Port)
 	server.Run(address)
 }

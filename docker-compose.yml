@@ -1,12 +1,23 @@
-version: "1.0.0"
+version: "3"
+
 services:
+  database:
+    image: postgres
+    environment:
+      - POSTGRES_DB=minerva
+      - POSTGRES_USER=minerva
+      - POSTGRES_PASSWORD=minerva
+    ports:
+      - "5432:5432"
+
   server:
     build:
       context: ./minerva-backend/
     ports:
       - "8134:8134"
-  web:
-    build:
-      context: ./minerva-webapp/
-    ports:
-      - "3000:3000"
+    depends_on:
+      - database
+    volumes:
+      - go-modules:/go
+volumes:
+  go-modules:
