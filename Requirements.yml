@@ -1,0 +1,237 @@
+# This document is a SRS (Software Requirements Specification) schema YAML file.
+
+info:
+  title: Minerva Learning Management System
+  version: 1.0.0
+  date: 2024-01-20
+  authors:
+    - name: Codemozart
+      email: thecodemozart@gmail.com
+purpose:
+  definitions:
+    LMS: Learning Management System
+    User: Any person who uses the system
+  background: |
+    This document describes the complete requirements for the Minerva Learning Management System.
+    Minerva is a modern Learning Management System primarily for colleges and universities.
+  system-overview: |
+    Minerva is a Learning Management System built as a web application (but with a focus on usability on mobile devices).
+  references:
+    screen-designs: https://www.figma.com/file/4kmUs5FLQadChqXOkFq4uD/Minerva?type=design&node-id=0-1&mode=design
+    code-repository: https://github.com/Code-Mozart/minerva
+    issue-tracker: https://github.com/Code-Mozart/minerva/issues
+overall-description:
+  product-perspective:
+    system-interface: |
+      The system is a web application.
+      It is accessed via a web browser.
+      The system is built using the following technologies:
+      - Frontend: SvelteKit
+      - Backend: Golang, Gin, PostgreSQL
+      - Deployment: Docker
+    user-interface: |
+      The user interface is designed to be simple and intuitive and fast.
+      It is designed to be usable on mobile devices.
+    hardware-interface: |
+      Mobile or desktop devices.
+    software-interface: |
+      Backend: Unix-based operating system
+      Frontend: Web browser
+    communications-interface: Email
+    memory-constraints: null
+  design-constraints:
+    operations: null
+    site-adaptation-requirements: |
+      The minerva system can be self-hosted and customized.
+      It can be adapted to the needs of the organization using it.
+  product-functions: |
+    The system provides the following functions:
+    - Using and managing resources within courses or other groups
+    - Assignments and Tests
+    - Managing and viewing grades
+    - Managing and viewing schedules
+    - Managing and viewing events
+    - Management of users, roles and permissions
+  user-characteristics: |
+    The system is designed to be used by students, teachers, tutors, and staff.
+    It is designed to be used by people with little to no technical knowledge
+    but with some knowledge about the universities/colleges inner workings.
+  assumptions: []
+  dependencies: []
+  constraints: []
+specific-requirements:
+  external-interfaces: null
+  non-functional:
+    performance-requirements: |
+      Webpages should load within 1 second. Long running operations are performed in the background
+      and are indicated to the user clearly, easily understandable and up-to-date.
+    security-requirements: |
+      The system must not leak any data. It must implement all standard security measures
+      and confirm to common security standards (ideally OWASP ASVS).
+    reliability-requirements: |
+      Reliability requirements are mostly up to the specific deployment/instance of the System.
+      However the system itself should be designed to be as reliable and robust as possible.
+
+      Errors should be expected and handled. Errors must be recovered from whenever possible.
+    availability-requirements: |
+      Availability is entirely up to the specific deployment/instance of the System.
+    maintainability-requirements: null
+    portability-requirements: null
+  functional:
+    "Groups":
+      id: groups
+      description: |
+        Groups are generalization of courses, faculties, departments, etc.
+        They are used as a collection of resources and can have members.
+      children:
+        "Group Types":
+          id: types
+          description: |
+            A group type specifies:
+            - The name of the type
+            - An optional description
+            - An optional icon
+            - Whether groups are recurring or permanent
+          children:
+            "Default Group Types":
+              id: defaults
+              description: |
+                The default group types are:
+                - Event
+                - Course Offering
+                - Course
+                - Faculty
+                - Department
+                - University/College (which one depends on the config, see #configuration)
+            "Customizing Group Types":
+              id: customization
+              description: |
+                The available types can be managed (edited, added, removed) by the admins.
+        "Group Hierarchy":
+          id: hierarchy
+          description: |
+            The groups are organized in a hierarchy meaning that a department can have faculties, faculties can have courses, etc.
+        "Group Members":
+          id: members
+          description: |
+            Groups have members. Groups without members are archived, see #version-control.archives
+            Members are users and always have a certain role within the group, see #users.roles
+          children:
+            "Role Management":
+              id: role-management
+              description: |
+                User roles are associated with groups, see #users.roles
+                These roles can be managed (edited, added, removed) within groups.
+            "Joining Groups":
+              id: joining
+              description: |
+                Users can join groups to become a member.
+                Whether this is possible depends on the group settings, see #groups.settings
+              children:
+                "Requesting to Join Groups":
+                  id: request
+                  description: |
+                    Depending on the group settings (#groups.settings),
+                    users must be approved before they can join a group.
+                    To be approved, users must request to join the group.
+                    This request can be accepted or rejected by group members.
+                  children:
+                    "Joining Request Availability":
+                      id: availability
+                      description: |
+                        Whether users can even request to join a group depends on the group settings, see #groups.settings
+                    "Approving/Rejecting Requests":
+                      id: approval
+                      description: |
+                        Which users can approve/reject requests depends on the group settings
+                "Invites":
+                  id: invites
+                  description: |
+                    Group members can invite other users to join the group.
+                    Whether a user can do this depends on the group settings, see #groups.settings
+                    Depending on the group settings, invited users must still also be approved before they can join a group.
+                  children:
+                    "No Redundant Approval":
+                      id: no-redundant-approval
+                      description: |
+                        If a user is invited by a group member that is also allowed to approve requests,
+                        the user is automatically approved.
+                    "Accepting/Rejecting Invites":
+                      id: acceptance
+                      description: |
+                        Users can accept or reject the invitations to join a group.
+            "Leaving Groups":
+              id: leaving
+              description: |
+                Users can leave groups to stop being a member.
+                Whether this is possible depends on the group settings, see #groups.settings
+            "Removing Members":
+              id: removing
+              description: |
+                Group members can be removed by other group members.
+                Which members can remove which remembers depends on the group settings, see #groups.settings
+        "Group Settings":
+          id: settings
+          description: |
+            Group settings specify:
+            - The available actions per role (including invitations, approvals/rejections, etc.)
+            - Which role in the parent group (or the parents parent group, etc.) is required to join or request to join the group
+            - ...
+    "Resources":
+      id: resources
+      description: |
+        Resources are content, i.e. documents, images, videos, etc. and interactive elements
+        such as questionnaires, polls, etc. They exist within groups, see #groups.
+      children:
+        "Visibility":
+          id: visibility
+          description: |
+            The scope of a resource (i.e. where it is visible and accessible)
+            can be set to only the group it is in or any of its parent groups.
+    "Assignments":
+      id: assignments
+      description: ...
+      children:
+        "Grading Form Templates":
+          id: grading-form-templates
+          description: |
+            Grading form templates are used to create grading forms for assignments.
+            They specify the grading criteria and the possible grades.
+        "Grading":
+          id: grading
+          description: ...
+    "VersionControl":
+      id: version-control
+      description: |
+        Minerva uses version control for all resources...
+      children:
+        "Archives":
+          id: archives
+          description: ...
+    "Users":
+      id: users
+      description: ...
+      children:
+        "Profile":
+          id: profile
+          description: ...
+        "Roles":
+          id: roles
+          description: ...
+          children:
+            "Default Roles":
+              id: defaults
+              description: ...
+            "Customizing Roles":
+              id: customization
+              description: ...
+        "Permissions":
+          id: permissions
+          description: ...
+        "Authentication":
+          id: authentication
+          description: ...
+    "Schedule":
+      id: schedule
+      description: ...
+  other: {}
